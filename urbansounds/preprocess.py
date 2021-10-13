@@ -54,5 +54,5 @@ class preprocess:
 if __name__ == "__main__":
     audio_dataset_path = "/kaggle/input/urbansound8k"
     metadata_file = "UrbanSound8K.csv"
-    P = preprocess()
+    P = preprocess(audio_dataset_path, metadata_file)
     X_train, X_test, y_train, y_test = P.pipeline()
