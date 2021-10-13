@@ -11,13 +11,13 @@ from tqdm import tqdm
 
 class preprocess:
 
-    def __inti__(self):
+    def __init__(self, audio_dataset_path, metadata_file):
         """urbansounds metadata consists of the following columns
         ["slice_file_name","fsID","start","end","salience","fold","classID","class"]"""
 
-        audio_dataset_path = "/kaggle/input/urbansound8k"
-        metadata_path = os.path.join(audio_dataset_path, "UrbanSound8K.csv")
-        metadata = pd.read_csv(metadata_path)
+        self.audio_dataset_path = audio_dataset_path
+        metadata_path = os.path.join(audio_dataset_path, metadata_file)
+        self.metadata = pd.read_csv(metadata_path)
 
 
     def mfcc_extractor(self, file):
@@ -32,8 +32,8 @@ class preprocess:
         """preprocess pipeline"""
 
         extracted_features=[]
-        for index_num, row in tqdm(metadata.iterrows()):
-            file_name = os.path.join(audio_dataset_path, f'fold{row["fold"]}', row["slice_file_name"])
+        for index_num, row in tqdm(self.metadata.iterrows()):
+            file_name = os.path.join(self.audio_dataset_path, f'fold{row["fold"]}', row["slice_file_name"])
             final_class_labels = row["class"]
             data = self.mfcc_extractor(file_name)
             extracted_features.append([data,final_class_labels])
@@ -46,6 +46,13 @@ class preprocess:
 
         ## Train Test Split
         X_train, X_test, y_train, y_test = \
-            train_test_split(X,y, test_size=0.2, random_state=42)
+            train_test_split(X, y, test_size=0.2, random_state=42)
 
         return X_train, X_test, y_train, y_test
+
+
+if __name__ == "__main__":
+    audio_dataset_path = "/kaggle/input/urbansound8k"
+    metadata_file = "UrbanSound8K.csv"
+    P = preprocess()
+    X_train, X_test, y_train, y_test = P.pipeline()
