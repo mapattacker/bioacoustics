@@ -9,16 +9,8 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
 
+
 class preprocess:
-
-    def __init__(self, audio_dataset_path, metadata_file):
-        """urbansounds metadata consists of the following columns
-        ["slice_file_name","fsID","start","end","salience","fold","classID","class"]"""
-
-        self.audio_dataset_path = audio_dataset_path
-        metadata_path = os.path.join(audio_dataset_path, metadata_file)
-        self.metadata = pd.read_csv(metadata_path)
-
 
     def mfcc_extractor(self, file):
         """convert audio file into mfcc features"""
@@ -28,12 +20,19 @@ class preprocess:
         return mfccs_scaled_features
 
 
-    def pipeline(self):
-        """preprocess pipeline"""
+    def pipeline(self, audio_dataset_path, metadata_file):
+        """preprocess pipeline
+        urbansounds metadata consists of the following columns
+        ["slice_file_name","fsID","start","end","salience","fold","classID","class"]"""
+
+        # load metadata
+        self.audio_dataset_path = audio_dataset_path
+        metadata_path = os.path.join(audio_dataset_path, metadata_file)
+        self.metadata = pd.read_csv(metadata_path)
 
         extracted_features=[]
-        for index_num, row in tqdm(self.metadata.iterrows()):
-            file_name = os.path.join(self.audio_dataset_path, f'fold{row["fold"]}', row["slice_file_name"])
+        for index_num, row in tqdm(metadata.iterrows()):
+            file_name = os.path.join(audio_dataset_path, f'fold{row["fold"]}', row["slice_file_name"])
             final_class_labels = row["class"]
             data = self.mfcc_extractor(file_name)
             extracted_features.append([data,final_class_labels])
@@ -54,5 +53,5 @@ class preprocess:
 if __name__ == "__main__":
     audio_dataset_path = "/kaggle/input/urbansound8k"
     metadata_file = "UrbanSound8K.csv"
-    P = preprocess(audio_dataset_path, metadata_file)
-    X_train, X_test, y_train, y_test = P.pipeline()
+    P = preprocess()
+    X_train, X_test, y_train, y_test = P.pipeline(audio_dataset_path, metadata_file)
