@@ -6,6 +6,8 @@ import librosa
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from tensorflow.keras.utils import to_categorical
 from tqdm import tqdm
 
 
@@ -14,7 +16,7 @@ class preprocess:
 
     def mfcc_extractor(self, file):
         """convert audio file into mfcc features"""
-        audio, sample_rate = librosa.load(file_name, res_type="kaiser_fast")
+        audio, sample_rate = librosa.load(file, res_type="kaiser_fast")
         mfccs_features = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
         mfccs_scaled_features = np.mean(mfccs_features.T, axis=0)
         return mfccs_scaled_features
@@ -26,9 +28,9 @@ class preprocess:
         ["slice_file_name","fsID","start","end","salience","fold","classID","class"]"""
 
         # load metadata
-        self.audio_dataset_path = audio_dataset_path
+        audio_dataset_path = audio_dataset_path
         metadata_path = os.path.join(audio_dataset_path, metadata_file)
-        self.metadata = pd.read_csv(metadata_path)
+        metadata = pd.read_csv(metadata_path)
 
         extracted_features=[]
         for index_num, row in tqdm(metadata.iterrows()):
@@ -42,6 +44,10 @@ class preprocess:
 
         X = np.array(extracted_features_df["feature"].tolist())
         y = np.array(extracted_features_df["class"].tolist())
+
+        # one-hot encoding for labels
+        labelencoder = LabelEncoder()
+        y = to_categorical(labelencoder.fit_transform(y))
 
         ## Train Test Split
         X_train, X_test, y_train, y_test = \
