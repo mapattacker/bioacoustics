@@ -12,13 +12,24 @@ from tensorflow.keras.optimizers import Adam
 
 class train:
 
-    def model_arch(self, input_shape, num_labels):
+    def __init__(self, input_shape, num_labels):
+        """
+        Args:
+            input_shape (int): number of features
+            num_labels (int): number of classes
+        """
+
+        self.input_shape = input_shape
+        self.num_labels = num_labels
+
+
+    def model_arch(self):
         """define NN architecture in keras"""
 
         model = Sequential()
 
         ### first Layer
-        model.add(Dense(100, input_shape=(input_shape,)))
+        model.add(Dense(100, input_shape=(self.input_shape,)))
         model.add(Activation('relu'))
         model.add(Dropout(0.5))
         ### second Layer
@@ -31,7 +42,7 @@ class train:
         model.add(Dropout(0.5))
 
         ### final Layer
-        model.add(Dense(num_labels))
+        model.add(Dense(self.num_labels))
         model.add(Activation('softmax'))
         model.compile(
                 loss='categorical_crossentropy', 
@@ -41,27 +52,32 @@ class train:
         return model
 
 
-    def train(X_train, X_test, y_train, y_test, epochs, batch_size):
+    def start_train(X_train, X_test, y_train, y_test, epochs, batch_size):
         """start training"""
 
-        start = time()
-        checkpointer = ModelCheckpoint(filepath='model/', 
+        model = self.model_arch()
+        checkpointer = ModelCheckpoint(filepath='./', 
                             verbose=1, 
                             save_best_only=True)
-
+        
+        start = time()
         model.fit(X_train, y_train, 
-            batch_size=batch_size, 
-            epochs=epochs, 
-            validation_data=(X_test, y_test), 
-            callbacks=[checkpointer])
+                batch_size=batch_size, 
+                epochs=epochs, 
+                validation_data=(X_test, y_test), 
+                callbacks=[checkpointer])
 
         print('Training completed in time: ', time()-start)
-        test_accuracy = model.evaluate(X_test, y_test, verbose=0)
+        test_accuracy = self.model.evaluate(X_test, y_test, verbose=0)
         print(test_accuracy[1])
 
 
 
 if __name__ == "__main__":
-    t = train()
-    model = t.model_arch(40, 10)
-    print(model.summary())
+    epochs=20 
+    batch_size=32
+    input_shape=len(X_train[0])
+    num_labels=len(np.unique(y_train))
+
+    t = train(input_shape, num_labels)
+    t.start_train(X_train, X_test, y_train, y_test, epochs, batch_size)
