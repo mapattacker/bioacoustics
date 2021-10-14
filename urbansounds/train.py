@@ -56,7 +56,7 @@ class train:
         """start training"""
 
         model = self.model_arch()
-        checkpointer = ModelCheckpoint(filepath='./', 
+        checkpointer = ModelCheckpoint(filepath='./model', 
                             verbose=1, 
                             save_best_only=True)
         
@@ -68,7 +68,7 @@ class train:
                 callbacks=[checkpointer])
 
         print('Training completed in time: ', time()-start)
-        test_accuracy = self.model.evaluate(X_test, y_test, verbose=0)
+        test_accuracy = model.evaluate(X_test, y_test, verbose=0)
         print(test_accuracy[1])
 
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     epochs=20 
     batch_size=32
     input_shape=len(X_train[0])
-    num_labels=len(np.unique(y_train))
+    num_labels=y_train.shape[1]
 
     t = train(input_shape, num_labels)
     t.start_train(X_train, X_test, y_train, y_test, epochs, batch_size)
