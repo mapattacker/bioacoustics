@@ -29,17 +29,19 @@ class train:
         model = Sequential()
 
         ### first Layer
-        model.add(Dense(100, input_shape=(self.input_shape,)))
+        model.add(Dense(1024, input_shape=(self.input_shape,)))
         model.add(Activation('relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.2))
+
         ### second Layer
-        model.add(Dense(200))
+        model.add(Dense(512))
         model.add(Activation('relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.2))
+
         ### third Layer
-        model.add(Dense(100))
+        model.add(Dense(256))
         model.add(Activation('relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.2))
 
         ### final Layer
         model.add(Dense(self.num_labels))
@@ -52,7 +54,7 @@ class train:
         return model
 
 
-    def start_train(X_train, X_test, y_train, y_test, epochs, batch_size):
+    def start_train(self, X_train, X_test, y_train, y_test, epochs, batch_size):
         """start training"""
 
         model = self.model_arch()
