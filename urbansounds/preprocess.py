@@ -32,16 +32,15 @@ class preprocess:
         data = self.mfcc_extractor(file_name)
         return [data, final_class_labels]
 
+
     def encoder(self, y):
         """encode string labels to one-hot & save encode mapping"""
-
         # encode label string to int
         labelencoder = LabelEncoder()
         y = labelencoder.fit_transform(y)
         joblib.dump(labelencoder, "encoder.jb")
         # one-hot encoding
         y = to_categorical(y)
-
         return y
 
 
