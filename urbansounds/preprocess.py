@@ -27,7 +27,7 @@ class preprocess:
     def f_extractor(self, df, idx):
         """some processing before feature extraction"""
         row = df.iloc[idx]
-        file_name = os.path.join(audio_dataset_path, f'fold{row["fold"]}', row["slice_file_name"])
+        file_name = os.path.join(self.audio_dataset_path, f'fold{row["fold"]}', row["slice_file_name"])
         final_class_labels = row["class"]
         data = self.mfcc_extractor(file_name)
         return [data, final_class_labels]
@@ -50,8 +50,8 @@ class preprocess:
         ["slice_file_name","fsID","start","end","salience","fold","classID","class"]"""
 
         # load metadata
-        audio_dataset_path = audio_dataset_path
-        metadata_path = os.path.join(audio_dataset_path, metadata_file)
+        self.audio_dataset_path = audio_dataset_path
+        metadata_path = os.path.join(self.audio_dataset_path, metadata_file)
         metadata = pd.read_csv(metadata_path)
 
         # parallel extractor
