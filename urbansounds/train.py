@@ -2,17 +2,20 @@
 
 from time import time
 
-from sklearn import metrics
+import pandas as pd
+from sklearn.metrics import classification_report, confusion_matrix
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.layers import Activation, Dense, Dropout, Flatten
-from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.optimizers import Adam
 
 
 
 class train:
 
-    def __init__(self, input_shape, num_labels):
+    def __init__(self, input_shape, num_labels, 
+                    model_path="./model", 
+                    encoder_path="encoder/encoder.jb"):
         """
         Args:
             input_shape (int): number of features
@@ -21,6 +24,8 @@ class train:
 
         self.input_shape = input_shape
         self.num_labels = num_labels
+        self.model_path = model_path
+        self.encoder_path = encoder_path
 
 
     def model_arch(self):
@@ -58,7 +63,7 @@ class train:
         """start training"""
 
         model = self.model_arch()
-        checkpointer = ModelCheckpoint(filepath='./model', 
+        checkpointer = ModelCheckpoint(filepath=self.model_path, 
                             verbose=1, 
                             save_best_only=True)
         
@@ -69,9 +74,40 @@ class train:
                 validation_data=(X_test, y_test), 
                 callbacks=[checkpointer])
 
-        print('Training completed in time: ', time()-start)
+        elapsed_time = round((time()-start)/60, 2)
+        print(f'Training completed in time: {elapsed_time} min')
         test_accuracy = model.evaluate(X_test, y_test, verbose=0)
-        print(test_accuracy[1])
+        print(f'Accuracy: {test_accuracy[1]}')
+
+
+    def evaluate(self, X_test, cf_gradient=True):
+        """get evaluation reports.
+        
+        Rets:
+            (str): classification report. Use print().
+            (df): confusion matrix. Do not use print().
+        """
+
+        model = load_model(self.model_path)
+        labelencoder = joblib.load(self.encoder_path)
+        classes = labelencoder.classes_.tolist()
+
+        prediction = model.predict(X_test)
+        y_pred = np.argmax(prediction, axis=1)
+        y_test_orig = np.argmax(y_test, axis=1)
+
+        # classification report
+        class_report = classification_report(y_test_orig, y_pred, target_names=classes)
+        
+        # confusion matrix
+        cfm = confusion_matrix(y_test_orig, y_pred)
+        conf_matrix = pd.DataFrame(cfm, columns=classes, index=classes)
+        if cf_gradient:
+            conf_matrix = conf_matrix.style.background_gradient(cmap='coolwarm')
+        
+        return class_report, conf_matrix
+
+
 
 
 
@@ -83,3 +119,6 @@ if __name__ == "__main__":
 
     t = train(input_shape, num_labels)
     t.start_train(X_train, X_test, y_train, y_test, epochs, batch_size)
+    class_r, conf_m = t.evaluate(X_test, True)
+    print(class_r)
+    conf_m
