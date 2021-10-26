@@ -2,4 +2,5 @@
 # we need to install libsndfile
 
 # for debian linux
+apt-get update
 apt-get install -y libsndfile-dev
