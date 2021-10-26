@@ -3,4 +3,4 @@
 
 # for debian linux
 apt-get update
-apt-get install -y libsndfile-dev
+apt-get install -y libsndfile1-dev
