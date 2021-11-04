@@ -1,5 +1,6 @@
 """refactored from https://www.kaggle.com/prajaktaparate14/audio-classification"""
 
+import json
 import os
 
 import joblib
@@ -38,7 +39,12 @@ class preprocess:
         # encode label string to int
         labelencoder = LabelEncoder()
         y = labelencoder.fit_transform(y)
-        joblib.dump(labelencoder, "encoder.jb")
+        
+        # save mapping as json
+        mapping = {i: label for i, label in enumerate(labelencoder.classes_)}
+        with open("mapping.json", "w") as fp:
+            json.dump(mapping, fp)
+        
         # one-hot encoding
         y = to_categorical(y)
         return y
