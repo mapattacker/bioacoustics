@@ -1,10 +1,9 @@
 import os
+import json
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-import joblib
 import numpy as np
 import tensorflow as tf
-from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.models import load_model
 
 from preprocess import preprocess
@@ -12,7 +11,8 @@ from preprocess import preprocess
 
 P = preprocess()
 model = load_model("model/")
-labelencoder = joblib.load("encoder/encoder.jb")
+with open("mapping.json") as f:
+    mapping = json.load(f)
 
 
 def predict(file):
@@ -22,8 +22,10 @@ def predict(file):
 
     # get probability of each class, & convert to class name
     predicted = model.predict(mfccs_scaled_features)
-    predicted_label = np.argmax(predicted, axis=1)
-    prediction_class = labelencoder.inverse_transform(predicted_label)
+    predicted_label = np.argmax(predicted, axis=1)[0]
+    
+    # map to class name
+    prediction_class = mapping[str(predicted_label)]
 
     return prediction_class
 

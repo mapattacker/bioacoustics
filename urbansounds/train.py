@@ -1,5 +1,6 @@
 """refactored from https://www.kaggle.com/prajaktaparate14/audio-classification"""
 
+import json
 from time import time
 
 import pandas as pd
@@ -15,7 +16,7 @@ class train:
 
     def __init__(self, input_shape, num_labels, 
                     model_path="./model", 
-                    encoder_path="encoder/encoder.jb"):
+                    mapping_path="mapping.json"):
         """
         Args:
             input_shape (int): number of features
@@ -89,8 +90,9 @@ class train:
         """
 
         model = load_model(self.model_path)
-        labelencoder = joblib.load(self.encoder_path)
-        classes = labelencoder.classes_.tolist()
+        with open(self.mapping_path) as f:
+            mapping = json.load(f)
+            classes = [mapping[i] for i in mapping]
 
         prediction = model.predict(X_test)
         y_pred = np.argmax(prediction, axis=1)
