@@ -2,9 +2,6 @@
 https://www.kaggle.com/shtrausslearning/keras-bird-spectogram-multiclass-classification/notebook
 """
 
-import os
-
-from PIL import Image
 import pandas as pd
 import librosa
 from tqdm import tqdm, tnrange, tqdm_notebook
@@ -14,9 +11,10 @@ from tqdm import tqdm, tnrange, tqdm_notebook
 def split_signal(sig, sr, sl):
     """Split signal into equal segments
     
+    sig (array): 
     sr (int): sampling rate
     sl (int) sampling length"""
-    
+
     step = int(sample_rate * sample_len)
     sig_splits = []
     for i in range(0, len(sig), step):
@@ -27,9 +25,13 @@ def split_signal(sig, sr, sl):
     return sig_splits
 
 
+def save_melspec():
+    """save mel spectrogram"""
+
+
 def get_spectrograms(filepath, primary_label, output_dir):
     """extracts spectrograms and saves them in a working directory"""
-    
+
     # duration is set from global variable
     sig, rate = librosa.load(filepath, sr=coefs.sr, offset=None, duration=coefs.cutoff)
     sig_splits = split_signal(sig) # split the signal into parts
