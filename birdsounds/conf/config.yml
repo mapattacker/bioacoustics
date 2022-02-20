@@ -1,0 +1,10 @@
+preprocess:
+  sampling_rate: 32000
+  sampling_len: 5 # sec
+  metadata: train_metadata.csv
+  cutoff: 15 # sec
+  shape: # image shape
+    - 48 # height
+    - 128 # width
+hyperparameters:
+  epoch: 5
